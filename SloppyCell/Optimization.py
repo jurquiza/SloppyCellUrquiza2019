@@ -166,3 +166,29 @@ def leastsq_log_params(m, params, *args, **kwargs):
         return pout
     else:
         return scipy.exp(pmin)
+
+def fmin_lm_log_params_fd(m, params, relativeScale=False, stepSizeCutoff=None, *args, **kwargs):
+    """
+        Minimize the cost of a model using Levenberg-Marquadt in terms of log
+        parameters. This methods uses finite differences instead of sensitivity integration
+        convinient when using ad hoc residuals like period and amplitud check
+        The *args and **kwargs represent additional parmeters that will be passed to
+        the optimization algorithm. For your convenience, the docstring of that
+        function is appended below:
+        """
+    Nres = len(m.residuals)
+    def func(log_params):
+        try:
+            return m.res_log_params(log_params)
+        except Utility.SloppyCellException:
+            logger.warn('Exception in cost evaluation. Cost set to inf.')
+            return [scipy.inf] * Nres
+
+sln = lmopt.fmin_lm(f=func, x0=scipy.log(params),
+                    *args, **kwargs)
+if isinstance(params, KeyedList):
+    pout = params.copy()
+    pout.update(scipy.exp(sln))
+    return pout
+    else:
+        return scipy.exp(sln)
