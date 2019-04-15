@@ -131,6 +131,23 @@ class ScaledErrorInFit(Residual):
         deriv = raw_pred_val / self.ySigma
         return {'scaleFactors': {self.exptKey: {self.yKey: deriv}}}
 
+## Uriel Urquiza Dveloped this modification
+## In photobiollgy in many instances the interest is a ratio between quantities
+class Ratio(Residual):
+    def __init__(self, key, calcKey, depVarKey, indVar1, indVar2, depVarMeasurement,ratioSigma):
+        Residual.__init__(self, key)
+        self.calcKey = calcKey
+        self.yKey = depVarKey
+        self.x1Var = indVar1
+        self.x2Var = indVar2
+        self.yMeas = depVarMeasurement
+        self.ySigma = ratioSigma
+    
+    def GetValue(self, predictions, params):
+        ratio = predictions[self.calcKey][self.yKey][self.x1Var]/predictions[self.calcKey][self.yKey][self.x2Var]
+        return (ratio-self.yMeas)/self.ySigma
+
+
 class PriorInLog(Residual):
     def __init__(self, key, pKey, logPVal, sigmaLogPVal):
         Residual.__init__(self, key)
