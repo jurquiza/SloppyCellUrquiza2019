@@ -37,7 +37,7 @@ class Residual:
 
     def dy(self, predictions, internalVars, params):
         """
-        Partial derivative of the residual with respect to any calculated 
+        Partial derivative of the residual with respect to any calculated
         variables.
 
         Should return a dictionary of the form:
@@ -59,7 +59,7 @@ class Residual:
 
     def Dp(self, predictions, senspredictions, internalVars, internalVarsDerivs,
            params):
-	""" 
+	"""
         Total derivatives with respect to all parameters of the residual.
 
         Should return a list with the derivatives in the same order as params.
@@ -77,7 +77,7 @@ class Residual:
                 for yKey in dres_dy[calcKey].keys():
                     for xVal in dres_dy[calcKey][yKey].keys():
                         dres_dy_this = dres_dy[calcKey][yKey][xVal]
-                        # We default to 0 if parameter not in senspredictions. 
+                        # We default to 0 if parameter not in senspredictions.
                         # (It may not be involved in a given calculation.)
                         dy_dp_this = senspredictions[calcKey][yKey][xVal].get(pname, 0)
                         deriv += dres_dy_this * dy_dp_this
@@ -142,9 +142,9 @@ class Ratio(Residual):
         self.x2Var = indVar2
         self.yMeas = depVarMeasurement
         self.ySigma = ratioSigma
-    
-    def GetValue(self, predictions, params):
-        ratio = predictions[self.calcKey][self.yKey][self.x1Var]/predictions[self.calcKey][self.yKey][self.x2Var]
+
+    def GetValue(self, predictions, internalVars,params):
+        ratio = predictions[self.calcKey][self.yKey][self.x2Var]/predictions[self.calcKey][self.yKey][self.x1Var]*100
         return (ratio-self.yMeas)/self.ySigma
 
 
@@ -212,16 +212,16 @@ class PeriodCheckResidual(Residual):
                or (self.xVal+2.0*self.yMeas)<times[index]: continue
             t1,t2,t3 = times[index-1:index+2]
             y1,y2,y3 = traj[t1], traj[t2], traj[t3]
-            if y1<y2 and y3<y2: 
+            if y1<y2 and y3<y2:
                 # Use a quadratic approximation to find the maximum
                 (a,b,c)=scipy.dot(scipy.linalg.inv([[t1**2,t1,1],
                                                     [t2**2,t2,1],
                                                     [t3**2,t3,1]]),[y1,y2,y3])
                 maximums.append(-b/2/a)
 
-        if len(maximums)<2: 
+        if len(maximums)<2:
             theoryVal = 2*self.yMeas
-        else: 
+        else:
             theoryVal = maximums[1] - maximums[0]
 
         return (theoryVal - self.yMeas)/self.ySigma
@@ -255,13 +255,13 @@ class AmplitudeCheckResidual(Residual):
         times.sort()
         startIndex,endStartIndex = times.index(self.xVal), times.index(self.xVal+self.period)
         testIndex,endTestIndex = times.index(self.xTestVal), times.index(self.xTestVal+self.period)
-        
+
         x,y=[],[]
         for t in times[startIndex:endStartIndex+1]:
             x.append(t)
             y.append(scale_factor*predictions[self.cKey][self.yKey][t])
         measVal = scipy.integrate.simps(y,x)
-            
+
         x,y=[],[]
         for t in times[testIndex:endTestIndex+1]:
             x.append(t)
@@ -327,7 +327,7 @@ class ScaledExtremum(Residual):
 
     def Dp(self, predictions, senspredictions, internalVars, internalVarsDerivs,
            params):
-	""" 
+	"""
         Total derivatives with respect to all parameters of the residual.
 
         Should return a list with the derivatives in the same order as params.

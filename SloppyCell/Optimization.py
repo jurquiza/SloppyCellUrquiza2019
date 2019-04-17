@@ -18,7 +18,7 @@ def fmin_powell_log_params(m, params, *args, **kwargs):
             logger.warn('Exception in cost evaluation. Cost set to inf.')
             return scipy.inf
 
-    pmin = scipy.optimize.fmin_powell(func, scipy.log(params), 
+    pmin = scipy.optimize.fmin_powell(func, scipy.log(params),
                                       *args, **kwargs)
     if isinstance(params, KeyedList):
         pout = params.copy()
@@ -35,7 +35,7 @@ def fmin_powell(m, params, *args, **kwargs):
             logger.warn('Exception in cost evaluation. Cost set to inf.')
             return scipy.inf
 
-    pmin = scipy.optimize.fmin_powell(func, scipy.log(params), 
+    pmin = scipy.optimize.fmin_powell(func, scipy.log(params),
                                       *args, **kwargs)
     if isinstance(params, KeyedList):
         pout = params.copy()
@@ -86,7 +86,7 @@ def fmin_xform(m, params, xforms, invforms, *args, **kwargs):
 
     m         Model to minimize the cost for
     params    initial parameter estimate
-    xforms    sequence of transforms (of length, len(params)) to apply to the 
+    xforms    sequence of transforms (of length, len(params)) to apply to the
               parameters before optimizing
     invforms  sequences of inverse transforms to get back to straight parameters
     *args     passed on to scipy.optimize.fmin
@@ -116,7 +116,7 @@ def fmin_xform(m, params, xforms, invforms, *args, **kwargs):
 import SloppyCell.lmopt as lmopt
 def fmin_lm_log_params(m, params, *args, **kwargs):
     """
-    Minimize the cost of a model using Levenberg-Marquadt in terms of log 
+    Minimize the cost of a model using Levenberg-Marquadt in terms of log
     parameters.
 
     The *args and **kwargs represent additional parmeters that will be passed to
@@ -184,11 +184,11 @@ def fmin_lm_log_params_fd(m, params, relativeScale=False, stepSizeCutoff=None, *
             logger.warn('Exception in cost evaluation. Cost set to inf.')
             return [scipy.inf] * Nres
 
-sln = lmopt.fmin_lm(f=func, x0=scipy.log(params),
+    sln = lmopt.fmin_lm(f=func, x0=scipy.log(params),
                     *args, **kwargs)
-if isinstance(params, KeyedList):
-    pout = params.copy()
-    pout.update(scipy.exp(sln))
-    return pout
+    if isinstance(params, KeyedList):
+        pout = params.copy()
+        pout.update(scipy.exp(sln))
+        return pout
     else:
         return scipy.exp(sln)
