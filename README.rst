@@ -13,3 +13,9 @@ Features
 * optimization methods to fit parameters to experimental data
 * simulation of multiple related networks sharing common parameters
 * stochastic Bayesian analysis of parameter space to estimate uncertainties associated with optimal fits
+
+Extended Features for photobiology and chronobiology 
+--------
+* Addition of fmin_lm_log_params_fd, which uses finite-difference instead of sensitivity. This is an important function when fitting using ad hoc residual defintions like period and ratios
+* Ratio of two time points in timeseries as a resiudal 
+* Rehabilitaion of amplitude and period check for circadian rhythems
