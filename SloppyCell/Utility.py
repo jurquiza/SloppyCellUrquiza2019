@@ -69,7 +69,7 @@ def bootstrap(data,num_iterates=100):
         sampled_data.append([random.choice(data) for ii in range(len_data)])
 
     return sampled_data
-        
+
 def enable_debugging_msgs(filename=None):
     """
     Enable output of debugging messages.
@@ -104,13 +104,13 @@ def disable_debugging_msgs():
     logging.basicConfig()
 
 def disable_warnings():
-    scipy.seterr(over='ignore', divide='ignore', invalid='ignore', 
+    scipy.seterr(over='ignore', divide='ignore', invalid='ignore',
                  under='ignore')
     logging.root.setLevel(logging.CRITICAL)
 
 def enable_warnings():
     logging.root.setLevel(logging.WARNING)
-    scipy.seterr(over='print', divide='print', invalid='print', 
+    scipy.seterr(over='print', divide='print', invalid='print',
                  under='ignore')
 
 class SloppyCellException(Exception):
@@ -134,7 +134,7 @@ Redirector = Redirector_mod.Redirector
 
 def combine_hessians(hesses, key_sets):
     """
-    Combine a number of hessians (with possibly different dimensions and 
+    Combine a number of hessians (with possibly different dimensions and
     orderings) into a single hessian.
 
     hesses    A sequence of hessians to combine
@@ -175,11 +175,11 @@ def SloppyCellData_to_numpy(data, network, chemical):
         y      chemical
         eps    uncertainty
         """
-    
+
     x =[]
     y = []
     eps=[]
-    
+
     for i in sorted(data[network][chemical].keys()):
         x.append(i)
         y.append(data[network][chemical][i][0])
@@ -189,10 +189,10 @@ def SloppyCellData_to_numpy(data, network, chemical):
     y = np.array(y)
     eps= np.array(eps)
 
-return x, y , eps
+    return x, y , eps
 
 def res_var(res_dict, network, variable):
-    
+
     res_sum = 0
     for res in res_dict.keys():
         if res[1] == network and res[2] == variable:
