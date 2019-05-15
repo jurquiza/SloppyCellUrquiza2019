@@ -161,3 +161,78 @@ def combine_hessians(hesses, key_sets):
                 tot_hess[tot_ii, tot_jj] += hess[ii, jj]
 
     return tot_hess, tot_keys
+
+##Functions Introduced by Uriel Urquiza Millar Lab
+
+def SloppyCellData_to_numpy(data, network, chemical):
+    """
+        Function that retunrs data formated for sloppy cell into numpy arrays for using it within python
+        data   Sloppycell dict containing data
+        network Name of the data for a particular netowork
+        chemical Name of state variables
+        returns
+        x      time point
+        y      chemical
+        eps    uncertainty
+        """
+    
+    x =[]
+    y = []
+    eps=[]
+    
+    for i in sorted(data[network][chemical].keys()):
+        x.append(i)
+        y.append(data[network][chemical][i][0])
+        eps.append(data[network][chemical][i][1])
+
+    x = np.array(x)
+    y = np.array(y)
+    eps= np.array(eps)
+
+return x, y , eps
+
+def res_var(res_dict, network, variable):
+    
+    res_sum = 0
+    for res in res_dict.keys():
+        if res[1] == network and res[2] == variable:
+            res_sum+=res_dict[res]**2
+    return res_sum/2
+
+def per_res(res_dict):
+    amp_period_res ={}
+    for res in res_dict.keys():
+        if 'period' in res:
+            amp_period_res[res]= res_dict[res]**2/2
+    return amp_period_res
+
+
+def deconv_cost(model, params ,network_data, networks_per_amp_constrais=False):
+    deconvoluted_cost = ''
+    total_cost=0
+    temp = 0
+    res_dict = model.res_dict(params)
+    deconvoluted_cost+='Network\t'+'Variable\t'+'Chi2\n'
+    for n in network_data.keys():
+        deconvoluted_cost+=n+'\n'
+        for v in network_data[n].keys():
+            temp = res_var(res_dict,n,v)
+            deconvoluted_cost+= '\t'+v+'\t'+str(temp)+'\n'
+            total_cost+=temp
+    if networks_per_amp_constrais:
+        deconvoluted_cost+='period\n'
+        for g in networks_per_amp_constrais:
+            for k in per_res(res_dict).keys():
+                if g in k and 'per' in k:
+                    deconvoluted_cost+='\t'+g+'\t'
+                    deconvoluted_cost+=str(networks_per_amp_constrais[g][1]**2*per_res(res_dict)[k]+networks_per_amp_constrais[g][0])
+                    deconvoluted_cost+='\t'+str(per_res(res_dict)[k])+'\t'
+                    total_cost+=per_res(res_dict)[k]
+                    deconvoluted_cost+='\n'
+    return deconvoluted_cost + 'Total Chi2\t\t' + str(total_cost)+'\n'
+
+def deconv_cost_to_file(model,params, network_data, networks_per_amp_constrais=False, path='./test.kk'):
+    summary = open(path, 'w')
+    summary.write(deconv_cost(model,params,network_data, networks_per_amp_constrais))
+    summary.close()
+    print "File writen to ", path
